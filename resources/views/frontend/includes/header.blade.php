@@ -24,7 +24,7 @@ $cPage = Request::segment(2);
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" style="padding:0px" href="{{ url('') }}"><h3 style="line-height: 0.5;color: white;">SNS Logo</h3></a>
+            <a class="navbar-brand" style="padding:0px" href="{{ url('/login') }}"><h3 style="line-height: 0.5;color: white;">SNS Logo</h3></a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -35,7 +35,7 @@ $cPage = Request::segment(2);
                     <li class="hidden-md"><a href="{{ url('account/manage') }}"><i class="fa fa-gear"></i> @lang('home.manage')</a> </li>
                     <li class="hidden-md"><a href="{{ url('account/logout') }}"><i class="fa fa-sign-out"></i> @lang('home.logout')</a></li>
                 @else
-                    <li class="hidden-md"><a href="{{ url('/') }}"><i class="fa fa-user"></i> @lang('home.login')</a></li>
+                    <li class="hidden-md"><a href="{{ url('/login') }}"><i class="fa fa-user"></i> @lang('home.login')</a></li>
                 @endif
 
                 <!---->

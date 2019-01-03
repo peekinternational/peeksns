@@ -1011,6 +1011,88 @@ function warn(message) {
 
 /***/ }),
 /* 8 */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1253,7 +1335,7 @@ function clickHandlerFactory(_ref3) {
 });
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 var g;
@@ -1280,7 +1362,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/**
@@ -1480,88 +1562,6 @@ function localstorage() {
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(32)))
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-// css base code, injected by the css-loader
-module.exports = function(useSourceMap) {
-	var list = [];
-
-	// return the list of modules as css string
-	list.toString = function toString() {
-		return this.map(function (item) {
-			var content = cssWithMappingToString(item, useSourceMap);
-			if(item[2]) {
-				return "@media " + item[2] + "{" + content + "}";
-			} else {
-				return content;
-			}
-		}).join("");
-	};
-
-	// import a list of modules into the list
-	list.i = function(modules, mediaQuery) {
-		if(typeof modules === "string")
-			modules = [[null, modules, ""]];
-		var alreadyImportedModules = {};
-		for(var i = 0; i < this.length; i++) {
-			var id = this[i][0];
-			if(typeof id === "number")
-				alreadyImportedModules[id] = true;
-		}
-		for(i = 0; i < modules.length; i++) {
-			var item = modules[i];
-			// skip already imported module
-			// this implementation is not 100% perfect for weird media query combinations
-			//  when a module is imported multiple times with different media queries.
-			//  I hope this will never occur (Hey this way we have smaller bundles)
-			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-				if(mediaQuery && !item[2]) {
-					item[2] = mediaQuery;
-				} else if(mediaQuery) {
-					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-				}
-				list.push(item);
-			}
-		}
-	};
-	return list;
-};
-
-function cssWithMappingToString(item, useSourceMap) {
-	var content = item[1] || '';
-	var cssMapping = item[3];
-	if (!cssMapping) {
-		return content;
-	}
-
-	if (useSourceMap && typeof btoa === 'function') {
-		var sourceMapping = toComment(cssMapping);
-		var sourceURLs = cssMapping.sources.map(function (source) {
-			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
-		});
-
-		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
-	}
-
-	return [content].join('\n');
-}
-
-// Adapted from convert-source-map (MIT)
-function toComment(sourceMap) {
-	// eslint-disable-next-line no-undef
-	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
-	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
-
-	return '/*# ' + data + ' */';
-}
-
 
 /***/ }),
 /* 12 */
@@ -2487,175 +2487,6 @@ function pluckProps(keysToPluck, objToPluck) {
 
 /***/ }),
 /* 19 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = observeDOM;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__object__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_dom__ = __webpack_require__(4);
-
-
-
-/**
- * Observe a DOM element changes, falls back to eventListener mode
- * @param {Element} el The DOM element to observe
- * @param {Function} callback callback to be called on change
- * @param {object} [opts={childList: true, subtree: true}] observe options
- * @see http://stackoverflow.com/questions/3219758
- */
-function observeDOM(el, callback, opts) {
-  var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-  var eventListenerSupported = window.addEventListener;
-
-  // Handle case where we might be passed a vue instance
-  el = el ? el.$el || el : null;
-  /* istanbul ignore next: dificult to test in JSDOM */
-  if (!Object(__WEBPACK_IMPORTED_MODULE_1__utils_dom__["l" /* isElement */])(el)) {
-    // We can't observe somthing that isn't an element
-    return null;
-  }
-
-  var obs = null;
-
-  /* istanbul ignore next: dificult to test in JSDOM */
-  if (MutationObserver) {
-    // Define a new observer
-    obs = new MutationObserver(function (mutations) {
-      var changed = false;
-      // A Mutation can contain several change records, so we loop through them to see what has changed.
-      // We break out of the loop early if any "significant" change has been detected
-      for (var i = 0; i < mutations.length && !changed; i++) {
-        // The muttion record
-        var mutation = mutations[i];
-        // Mutation Type
-        var type = mutation.type;
-        // DOM Node (could be any DOM Node type - HTMLElement, Text, comment, etc)
-        var target = mutation.target;
-        if (type === 'characterData' && target.nodeType === Node.TEXT_NODE) {
-          // We ignore nodes that are not TEXt (i.e. comments, etc) as they don't change layout
-          changed = true;
-        } else if (type === 'attributes') {
-          changed = true;
-        } else if (type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)) {
-          // This includes HTMLElement and Text Nodes being added/removed/re-arranged
-          changed = true;
-        }
-      }
-      if (changed) {
-        // We only call the callback if a change that could affect layout/size truely happened.
-        callback();
-      }
-    });
-
-    // Have the observer observe foo for changes in children, etc
-    obs.observe(el, Object(__WEBPACK_IMPORTED_MODULE_0__object__["a" /* assign */])({ childList: true, subtree: true }, opts));
-  } else if (eventListenerSupported) {
-    // Legacy interface. most likely not used in modern browsers
-    el.addEventListener('DOMNodeInserted', callback, false);
-    el.addEventListener('DOMNodeRemoved', callback, false);
-  }
-
-  // We return a reference to the observer so that obs.disconnect() can be called if necessary
-  // To reduce overhead when the root element is hiiden
-  return obs;
-}
-
-/***/ }),
-/* 20 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_array__ = __webpack_require__(3);
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-
-/**
- * Issue #569: collapse::toggle::state triggered too many times
- * @link https://github.com/bootstrap-vue/bootstrap-vue/issues/569
- */
-
-var BVRL = '__BV_root_listeners__';
-
-/* harmony default export */ __webpack_exports__["a"] = ({
-  methods: {
-    /**
-         * Safely register event listeners on the root Vue node.
-         * While Vue automatically removes listeners for individual components,
-         * when a component registers a listener on root and is destroyed,
-         * this orphans a callback because the node is gone,
-         * but the root does not clear the callback.
-         *
-         * This adds a non-reactive prop to a vm on the fly
-         * in order to avoid object observation and its performance costs
-         * to something that needs no reactivity.
-         * It should be highly unlikely there are any naming collisions.
-         * @param {string} event
-         * @param {function} callback
-         * @chainable
-         */
-    listenOnRoot: function listenOnRoot(event, callback) {
-      if (!this[BVRL] || !Object(__WEBPACK_IMPORTED_MODULE_0__utils_array__["d" /* isArray */])(this[BVRL])) {
-        this[BVRL] = [];
-      }
-      this[BVRL].push({ event: event, callback: callback });
-      this.$root.$on(event, callback);
-      return this;
-    },
-
-
-    /**
-         * Convenience method for calling vm.$emit on vm.$root.
-         * @param {string} event
-         * @param {*} args
-         * @chainable
-         */
-    emitOnRoot: function emitOnRoot(event) {
-      var _$root;
-
-      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        args[_key - 1] = arguments[_key];
-      }
-
-      (_$root = this.$root).$emit.apply(_$root, [event].concat(_toConsumableArray(args)));
-      return this;
-    }
-  },
-
-  beforeDestroy: function beforeDestroy() {
-    if (this[BVRL] && Object(__WEBPACK_IMPORTED_MODULE_0__utils_array__["d" /* isArray */])(this[BVRL])) {
-      while (this[BVRL].length > 0) {
-        // shift to process in order
-        var _BVRL$shift = this[BVRL].shift(),
-            event = _BVRL$shift.event,
-            callback = _BVRL$shift.callback;
-
-        this.$root.$off(event, callback);
-      }
-    }
-  }
-});
-
-/***/ }),
-/* 21 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony default export */ __webpack_exports__["a"] = ({
-  computed: {
-    custom: function custom() {
-      return !this.plain;
-    }
-  },
-  props: {
-    plain: {
-      type: Boolean,
-      default: false
-    }
-  }
-});
-
-/***/ }),
-/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -2883,7 +2714,7 @@ function applyToTag (styleElement, obj) {
 
 
 /***/ }),
-/* 23 */
+/* 20 */
 /***/ (function(module, exports) {
 
 /* globals __VUE_SSR_CONTEXT__ */
@@ -2990,6 +2821,175 @@ module.exports = function normalizeComponent (
   }
 }
 
+
+/***/ }),
+/* 21 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = observeDOM;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__object__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_dom__ = __webpack_require__(4);
+
+
+
+/**
+ * Observe a DOM element changes, falls back to eventListener mode
+ * @param {Element} el The DOM element to observe
+ * @param {Function} callback callback to be called on change
+ * @param {object} [opts={childList: true, subtree: true}] observe options
+ * @see http://stackoverflow.com/questions/3219758
+ */
+function observeDOM(el, callback, opts) {
+  var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+  var eventListenerSupported = window.addEventListener;
+
+  // Handle case where we might be passed a vue instance
+  el = el ? el.$el || el : null;
+  /* istanbul ignore next: dificult to test in JSDOM */
+  if (!Object(__WEBPACK_IMPORTED_MODULE_1__utils_dom__["l" /* isElement */])(el)) {
+    // We can't observe somthing that isn't an element
+    return null;
+  }
+
+  var obs = null;
+
+  /* istanbul ignore next: dificult to test in JSDOM */
+  if (MutationObserver) {
+    // Define a new observer
+    obs = new MutationObserver(function (mutations) {
+      var changed = false;
+      // A Mutation can contain several change records, so we loop through them to see what has changed.
+      // We break out of the loop early if any "significant" change has been detected
+      for (var i = 0; i < mutations.length && !changed; i++) {
+        // The muttion record
+        var mutation = mutations[i];
+        // Mutation Type
+        var type = mutation.type;
+        // DOM Node (could be any DOM Node type - HTMLElement, Text, comment, etc)
+        var target = mutation.target;
+        if (type === 'characterData' && target.nodeType === Node.TEXT_NODE) {
+          // We ignore nodes that are not TEXt (i.e. comments, etc) as they don't change layout
+          changed = true;
+        } else if (type === 'attributes') {
+          changed = true;
+        } else if (type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)) {
+          // This includes HTMLElement and Text Nodes being added/removed/re-arranged
+          changed = true;
+        }
+      }
+      if (changed) {
+        // We only call the callback if a change that could affect layout/size truely happened.
+        callback();
+      }
+    });
+
+    // Have the observer observe foo for changes in children, etc
+    obs.observe(el, Object(__WEBPACK_IMPORTED_MODULE_0__object__["a" /* assign */])({ childList: true, subtree: true }, opts));
+  } else if (eventListenerSupported) {
+    // Legacy interface. most likely not used in modern browsers
+    el.addEventListener('DOMNodeInserted', callback, false);
+    el.addEventListener('DOMNodeRemoved', callback, false);
+  }
+
+  // We return a reference to the observer so that obs.disconnect() can be called if necessary
+  // To reduce overhead when the root element is hiiden
+  return obs;
+}
+
+/***/ }),
+/* 22 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_array__ = __webpack_require__(3);
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+
+/**
+ * Issue #569: collapse::toggle::state triggered too many times
+ * @link https://github.com/bootstrap-vue/bootstrap-vue/issues/569
+ */
+
+var BVRL = '__BV_root_listeners__';
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+  methods: {
+    /**
+         * Safely register event listeners on the root Vue node.
+         * While Vue automatically removes listeners for individual components,
+         * when a component registers a listener on root and is destroyed,
+         * this orphans a callback because the node is gone,
+         * but the root does not clear the callback.
+         *
+         * This adds a non-reactive prop to a vm on the fly
+         * in order to avoid object observation and its performance costs
+         * to something that needs no reactivity.
+         * It should be highly unlikely there are any naming collisions.
+         * @param {string} event
+         * @param {function} callback
+         * @chainable
+         */
+    listenOnRoot: function listenOnRoot(event, callback) {
+      if (!this[BVRL] || !Object(__WEBPACK_IMPORTED_MODULE_0__utils_array__["d" /* isArray */])(this[BVRL])) {
+        this[BVRL] = [];
+      }
+      this[BVRL].push({ event: event, callback: callback });
+      this.$root.$on(event, callback);
+      return this;
+    },
+
+
+    /**
+         * Convenience method for calling vm.$emit on vm.$root.
+         * @param {string} event
+         * @param {*} args
+         * @chainable
+         */
+    emitOnRoot: function emitOnRoot(event) {
+      var _$root;
+
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      (_$root = this.$root).$emit.apply(_$root, [event].concat(_toConsumableArray(args)));
+      return this;
+    }
+  },
+
+  beforeDestroy: function beforeDestroy() {
+    if (this[BVRL] && Object(__WEBPACK_IMPORTED_MODULE_0__utils_array__["d" /* isArray */])(this[BVRL])) {
+      while (this[BVRL].length > 0) {
+        // shift to process in order
+        var _BVRL$shift = this[BVRL].shift(),
+            event = _BVRL$shift.event,
+            callback = _BVRL$shift.callback;
+
+        this.$root.$off(event, callback);
+      }
+    }
+  }
+});
+
+/***/ }),
+/* 23 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony default export */ __webpack_exports__["a"] = ({
+  computed: {
+    custom: function custom() {
+      return !this.plain;
+    }
+  },
+  props: {
+    plain: {
+      type: Boolean,
+      default: false
+    }
+  }
+});
 
 /***/ }),
 /* 24 */
@@ -6067,7 +6067,7 @@ Popper.Defaults = Defaults;
 /* harmony default export */ __webpack_exports__["a"] = (Popper);
 //# sourceMappingURL=popper.js.map
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(10)))
 
 /***/ }),
 /* 31 */
@@ -6368,7 +6368,7 @@ process.umask = function() { return 0; };
  * Module dependencies.
  */
 
-var debug = __webpack_require__(10)('socket.io-parser');
+var debug = __webpack_require__(11)('socket.io-parser');
 var Emitter = __webpack_require__(15);
 var binary = __webpack_require__(129);
 var isArray = __webpack_require__(34);
@@ -8586,7 +8586,7 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 36 */
@@ -8867,7 +8867,7 @@ var props = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_array__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_object__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__utils_dom__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__link_link__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__link_link__ = __webpack_require__(9);
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -10961,7 +10961,7 @@ var Emitter = __webpack_require__(15);
 var parser = __webpack_require__(33);
 var on = __webpack_require__(63);
 var bind = __webpack_require__(64);
-var debug = __webpack_require__(10)('socket.io-client:manager');
+var debug = __webpack_require__(11)('socket.io-client:manager');
 var indexOf = __webpack_require__(61);
 var Backoff = __webpack_require__(147);
 
@@ -11597,7 +11597,7 @@ var parseqs = __webpack_require__(24);
 var parser = __webpack_require__(16);
 var inherit = __webpack_require__(25);
 var yeast = __webpack_require__(60);
-var debug = __webpack_require__(10)('engine.io-client:polling');
+var debug = __webpack_require__(11)('engine.io-client:polling');
 
 /**
  * Module exports.
@@ -12010,7 +12010,7 @@ var Emitter = __webpack_require__(15);
 var toArray = __webpack_require__(146);
 var on = __webpack_require__(63);
 var bind = __webpack_require__(64);
-var debug = __webpack_require__(10)('socket.io-client:socket');
+var debug = __webpack_require__(11)('socket.io-client:socket');
 var parseqs = __webpack_require__(24);
 var hasBin = __webpack_require__(59);
 
@@ -23594,7 +23594,7 @@ Vue.compile = compileToFunctions;
 
 module.exports = Vue;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(148).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(148).setImmediate))
 
 /***/ }),
 /* 66 */
@@ -23655,7 +23655,7 @@ var props = Object(__WEBPACK_IMPORTED_MODULE_1__utils_object__["a" /* assign */]
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_functional_data_merge__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_pluck_props__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_object__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__link_link__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__link_link__ = __webpack_require__(9);
 
 
 
@@ -24133,7 +24133,7 @@ var unbindTargets = function unbindTargets(vnode, binding, listenTypes) {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_popper_js__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__clickout__ = __webpack_require__(185);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__listen_on_root__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__listen_on_root__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_array__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__utils_object__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__utils_key_codes__ = __webpack_require__(14);
@@ -24750,7 +24750,7 @@ var props = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixins_form__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__mixins_form_size__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__mixins_form_state__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__mixins_form_custom__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__mixins_form_custom__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__utils_array__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__utils_loose_equal__ = __webpack_require__(46);
 
@@ -25272,7 +25272,7 @@ Object(__WEBPACK_IMPORTED_MODULE_6__utils_plugins__["c" /* vueUse */])(VuePlugin
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_range__ = __webpack_require__(237);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_key_codes__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_dom__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_link_link__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_link_link__ = __webpack_require__(9);
 /*
  * Comon props, computed, data, render function, and methods for b-pagination and b-pagination-nav
  */
@@ -25865,7 +25865,7 @@ var PopOver = function (_ToolTip) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_object__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_dom__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_ssr__ = __webpack_require__(242);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__utils_observe_dom__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__utils_observe_dom__ = __webpack_require__(21);
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /*
@@ -26314,7 +26314,7 @@ function injectStyle (ssrContext) {
   if (disposed) return
   __webpack_require__(266)
 }
-var normalizeComponent = __webpack_require__(23)
+var normalizeComponent = __webpack_require__(20)
 /* script */
 var __vue_script__ = __webpack_require__(269)
 /* template */
@@ -26361,7 +26361,7 @@ module.exports = Component.exports
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(98);
-module.exports = __webpack_require__(291);
+module.exports = __webpack_require__(296);
 
 
 /***/ }),
@@ -26406,7 +26406,7 @@ __WEBPACK_IMPORTED_MODULE_3_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_4_boot
 var home = __webpack_require__(96);
 var perpost = __webpack_require__(271);
 var news = __webpack_require__(276);
-var pernews = __webpack_require__(300);
+var pernews = __webpack_require__(281);
 
 var routes = [{
     path: '/',
@@ -26440,8 +26440,8 @@ __WEBPACK_IMPORTED_MODULE_3_vue___default.a.filter('striphtml', function (value)
     return text;
 });
 __WEBPACK_IMPORTED_MODULE_3_vue___default.a.component('example', __webpack_require__(96));
-__WEBPACK_IMPORTED_MODULE_3_vue___default.a.component('liftside', __webpack_require__(281));
-__WEBPACK_IMPORTED_MODULE_3_vue___default.a.component('rightside', __webpack_require__(286));
+__WEBPACK_IMPORTED_MODULE_3_vue___default.a.component('liftside', __webpack_require__(286));
+__WEBPACK_IMPORTED_MODULE_3_vue___default.a.component('rightside', __webpack_require__(291));
 
 var router = new __WEBPACK_IMPORTED_MODULE_2_vue_router__["a" /* default */]({
     routes: routes
@@ -43626,7 +43626,7 @@ if (token) {
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(101)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(101)(module)))
 
 /***/ }),
 /* 101 */
@@ -60462,7 +60462,7 @@ module.exports = function spread(callback) {
 var url = __webpack_require__(126);
 var parser = __webpack_require__(33);
 var Manager = __webpack_require__(56);
-var debug = __webpack_require__(10)('socket.io-client');
+var debug = __webpack_require__(11)('socket.io-client');
 
 /**
  * Module exports.
@@ -60560,7 +60560,7 @@ exports.Socket = __webpack_require__(62);
  */
 
 var parseuri = __webpack_require__(54);
-var debug = __webpack_require__(10)('socket.io-client:url');
+var debug = __webpack_require__(11)('socket.io-client:url');
 
 /**
  * Module exports.
@@ -61452,7 +61452,7 @@ module.exports.parser = __webpack_require__(16);
 
 var transports = __webpack_require__(57);
 var Emitter = __webpack_require__(15);
-var debug = __webpack_require__(10)('engine.io-client:socket');
+var debug = __webpack_require__(11)('engine.io-client:socket');
 var index = __webpack_require__(61);
 var parser = __webpack_require__(16);
 var parseuri = __webpack_require__(54);
@@ -62231,7 +62231,7 @@ var XMLHttpRequest = __webpack_require__(36);
 var Polling = __webpack_require__(58);
 var Emitter = __webpack_require__(15);
 var inherit = __webpack_require__(25);
-var debug = __webpack_require__(10)('engine.io-client:polling-xhr');
+var debug = __webpack_require__(11)('engine.io-client:polling-xhr');
 
 /**
  * Module exports.
@@ -63371,7 +63371,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 144 */
@@ -63386,7 +63386,7 @@ var parser = __webpack_require__(16);
 var parseqs = __webpack_require__(24);
 var inherit = __webpack_require__(25);
 var yeast = __webpack_require__(60);
-var debug = __webpack_require__(10)('engine.io-client:websocket');
+var debug = __webpack_require__(11)('engine.io-client:websocket');
 var BrowserWebSocket, NodeWebSocket;
 if (typeof self === 'undefined') {
   try {
@@ -63848,7 +63848,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (typeof global !== "undefined" && global.clearImmediate) ||
                          (this && this.clearImmediate);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 149 */
@@ -64041,7 +64041,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(32)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(32)))
 
 /***/ }),
 /* 150 */
@@ -67010,7 +67010,7 @@ if(false) {
 /* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(false);
+exports = module.exports = __webpack_require__(8)(false);
 // imports
 
 
@@ -67148,7 +67148,7 @@ Object(__WEBPACK_IMPORTED_MODULE_1__utils_plugins__["c" /* vueUse */])(VuePlugin
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_functional_data_merge__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_pluck_props__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_object__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__link_link__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__link_link__ = __webpack_require__(9);
 
 
 
@@ -67909,7 +67909,7 @@ Object(__WEBPACK_IMPORTED_MODULE_2__utils_plugins__["c" /* vueUse */])(VuePlugin
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_observe_dom__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_observe_dom__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_key_codes__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_dom__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__mixins_id__ = __webpack_require__(5);
@@ -68776,7 +68776,7 @@ function suffixPropName(suffix, str) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__mixins_listen_on_root__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__mixins_listen_on_root__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_dom__ = __webpack_require__(4);
 
 
@@ -69239,7 +69239,7 @@ if(false) {
 /* 187 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(false);
+exports = module.exports = __webpack_require__(8)(false);
 // imports
 
 
@@ -69256,7 +69256,7 @@ exports.push([module.i, "/* workaround for https://github.com/bootstrap-vue/boot
 "use strict";
 /* unused harmony export props */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_functional_data_merge__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__link_link__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__link_link__ = __webpack_require__(9);
 
 
 
@@ -69869,7 +69869,7 @@ Object(__WEBPACK_IMPORTED_MODULE_2__utils_plugins__["c" /* vueUse */])(VuePlugin
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixins_form_options__ = __webpack_require__(47);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__mixins_form_size__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__mixins_form_state__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__mixins_form_custom__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__mixins_form_custom__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__form_checkbox__ = __webpack_require__(85);
 
 
@@ -70018,7 +70018,7 @@ Object(__WEBPACK_IMPORTED_MODULE_2__utils_plugins__["c" /* vueUse */])(VuePlugin
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixins_form__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__mixins_form_size__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__mixins_form_state__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__mixins_form_custom__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__mixins_form_custom__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__form_radio__ = __webpack_require__(87);
 
 
@@ -70350,7 +70350,7 @@ if(false) {
 /* 205 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(false);
+exports = module.exports = __webpack_require__(8)(false);
 // imports
 
 
@@ -70574,7 +70574,7 @@ Object(__WEBPACK_IMPORTED_MODULE_1__utils_plugins__["c" /* vueUse */])(VuePlugin
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__mixins_id__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__mixins_form__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixins_form_state__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__mixins_form_custom__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__mixins_form_custom__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__utils_array__ = __webpack_require__(3);
 
 
@@ -70859,7 +70859,7 @@ Object(__WEBPACK_IMPORTED_MODULE_1__utils_plugins__["c" /* vueUse */])(VuePlugin
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixins_form__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__mixins_form_size__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__mixins_form_state__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__mixins_form_custom__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__mixins_form_custom__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__utils_array__ = __webpack_require__(3);
 
 
@@ -71321,7 +71321,7 @@ var props = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__link__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__link__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_plugins__ = __webpack_require__(1);
 
 
@@ -71414,7 +71414,7 @@ var props = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_pluck_props__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_object__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_array__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__link_link__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__link_link__ = __webpack_require__(9);
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -71595,8 +71595,8 @@ Object(__WEBPACK_IMPORTED_MODULE_2__utils_plugins__["c" /* vueUse */])(VuePlugin
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__button_button__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__button_button_close__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixins_id__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__mixins_listen_on_root__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__utils_observe_dom__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__mixins_listen_on_root__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__utils_observe_dom__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__utils_warn__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__utils_key_codes__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__utils_bv_event_class__ = __webpack_require__(45);
@@ -72457,7 +72457,7 @@ var props = {
 "use strict";
 /* unused harmony export props */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_functional_data_merge__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__link_link__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__link_link__ = __webpack_require__(9);
 
 
 
@@ -72759,7 +72759,7 @@ var props = {
 
 "use strict";
 /* unused harmony export props */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__link_link__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__link_link__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_functional_data_merge__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_pluck_props__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_object__ = __webpack_require__(2);
@@ -72802,7 +72802,7 @@ var props = Object(__WEBPACK_IMPORTED_MODULE_3__utils_object__["a" /* assign */]
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__mixins_listen_on_root__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__mixins_listen_on_root__ = __webpack_require__(22);
 
 
 /* harmony default export */ __webpack_exports__["a"] = ({
@@ -72984,7 +72984,7 @@ Object(__WEBPACK_IMPORTED_MODULE_1__utils_plugins__["c" /* vueUse */])(VuePlugin
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_object__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__mixins_pagination__ = __webpack_require__(92);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__link_link__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__link_link__ = __webpack_require__(9);
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 
@@ -73308,7 +73308,7 @@ Object(__WEBPACK_IMPORTED_MODULE_1__utils_plugins__["c" /* vueUse */])(VuePlugin
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__utils_object__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__utils_array__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__mixins_id__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__mixins_listen_on_root__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__mixins_listen_on_root__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__table_css__ = __webpack_require__(250);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__table_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10__table_css__);
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -74825,7 +74825,7 @@ function words(string, pattern, guard) {
 
 module.exports = startCase;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 248 */
@@ -75763,7 +75763,7 @@ function get(object, path, defaultValue) {
 
 module.exports = get;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 249 */
@@ -75838,7 +75838,7 @@ if(false) {
 /* 251 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(false);
+exports = module.exports = __webpack_require__(8)(false);
 // imports
 
 
@@ -75881,7 +75881,7 @@ Object(__WEBPACK_IMPORTED_MODULE_2__utils_plugins__["c" /* vueUse */])(VuePlugin
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_key_codes__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_observe_dom__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_observe_dom__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixins_id__ = __webpack_require__(5);
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -76627,7 +76627,7 @@ function removeBVSS(el) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_object__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_observe_dom__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_observe_dom__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_warn__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_dom__ = __webpack_require__(4);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -77532,7 +77532,7 @@ var content = __webpack_require__(267);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(22)("4d51d4cc", content, false, {});
+var update = __webpack_require__(19)("4d51d4cc", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -77551,7 +77551,7 @@ if(false) {
 /* 267 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(false);
+exports = module.exports = __webpack_require__(8)(false);
 // imports
 
 
@@ -81368,7 +81368,7 @@ function injectStyle (ssrContext) {
   if (disposed) return
   __webpack_require__(272)
 }
-var normalizeComponent = __webpack_require__(23)
+var normalizeComponent = __webpack_require__(20)
 /* script */
 var __vue_script__ = __webpack_require__(274)
 /* template */
@@ -81421,7 +81421,7 @@ var content = __webpack_require__(273);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(22)("277aa421", content, false, {});
+var update = __webpack_require__(19)("277aa421", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -81440,7 +81440,7 @@ if(false) {
 /* 273 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(false);
+exports = module.exports = __webpack_require__(8)(false);
 // imports
 
 
@@ -82677,7 +82677,7 @@ function injectStyle (ssrContext) {
   if (disposed) return
   __webpack_require__(277)
 }
-var normalizeComponent = __webpack_require__(23)
+var normalizeComponent = __webpack_require__(20)
 /* script */
 var __vue_script__ = __webpack_require__(279)
 /* template */
@@ -82730,7 +82730,7 @@ var content = __webpack_require__(278);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(22)("1defc785", content, false, {});
+var update = __webpack_require__(19)("1defc785", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -82749,7 +82749,7 @@ if(false) {
 /* 278 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(false);
+exports = module.exports = __webpack_require__(8)(false);
 // imports
 
 
@@ -82978,11 +82978,913 @@ function injectStyle (ssrContext) {
   if (disposed) return
   __webpack_require__(282)
 }
-var normalizeComponent = __webpack_require__(23)
+var normalizeComponent = __webpack_require__(20)
 /* script */
 var __vue_script__ = __webpack_require__(284)
 /* template */
 var __vue_template__ = __webpack_require__(285)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/Pernews.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-1feb4989", Component.options)
+  } else {
+    hotAPI.reload("data-v-1feb4989", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 282 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(283);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(19)("235929af", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-1feb4989\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Pernews.vue", function() {
+     var newContent = require("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-1feb4989\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Pernews.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 283 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(8)(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.played-film-description-wrapper {\n    background-color: #fff;\n    overflow: hidden;\n    -webkit-box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n            box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n}\n.related-movies-container {\n    background-color: #fff;\n    overflow: hidden;\n    -webkit-box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n            box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n    margin-top: 1px;\n}\n.played-film-image-wrap {\n    display: block;\n    overflow: hidden;\n    position: relative;\n    background-color: white;\n    border-radius: 3px;\n    -webkit-box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n            box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n    padding: 8px;\n}\n.responsive-img {\n    width: 100%;\n    max-width: 100%;\n}\n.main {\n    color: #5a9e02 !important;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 284 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: 'pernews',
+    props: ['news_id', 'showimg'],
+    data: function data() {
+        return {
+            showdata: ''
+        };
+    },
+
+    methods: {
+        getperdata: function getperdata() {
+            var _this = this;
+
+            axios.get('http://203.99.61.173/demos/peeksns/public/account/news/' + this.news_id).then(function (responce) {
+                _this.showdata = responce.data[0];
+            }).catch(function (error) {
+                return console.log(error);
+            });
+        }
+    },
+    mounted: function mounted() {
+        console.log(this.news_id);
+        this.getperdata();
+    }
+});
+
+/***/ }),
+/* 285 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "section",
+    { staticStyle: { "margin-top": "100px" }, attrs: { id: "relate-to-job" } },
+    [
+      _c("div", { staticClass: "container" }, [
+        _c(
+          "div",
+          { staticClass: "row" },
+          [
+            _c(
+              "div",
+              {
+                staticClass: "col-md-2 leftcol watch_info_movie",
+                staticStyle: {
+                  position: "relative",
+                  overflow: "visible",
+                  "box-sizing": "border-box",
+                  "min-height": "424.828px"
+                }
+              },
+              [
+                _c("div", { staticClass: "theiaStickySidebar" }, [
+                  _c("div", { staticClass: "played-film-image-wrap" }, [
+                    _c("img", {
+                      attrs: {
+                        alt: "National Assembly information report ",
+                        title: "National Assembly information report ",
+                        src:
+                          "http://203.99.61.173/demos/peeksns/public/featured-photos/" +
+                          _vm.showdata.featuredImage
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c(
+                      "h4",
+                      { staticClass: "main" },
+                      [
+                        _c(
+                          "font",
+                          { staticStyle: { "vertical-align": "inherit" } },
+                          [
+                            _c(
+                              "font",
+                              { staticStyle: { "vertical-align": "inherit" } },
+                              [_vm._v(_vm._s(_vm.showdata.title))]
+                            )
+                          ],
+                          1
+                        )
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c("div", [
+                      _c("p", { staticClass: "m-mata-tag" }, [
+                        _c(
+                          "span",
+                          [
+                            _c(
+                              "font",
+                              { staticStyle: { "vertical-align": "inherit" } },
+                              [
+                                _c(
+                                  "font",
+                                  {
+                                    staticStyle: { "vertical-align": "inherit" }
+                                  },
+                                  [_vm._v("Genre")]
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "p",
+                        [
+                          _c(
+                            "font",
+                            { staticStyle: { "vertical-align": "inherit" } },
+                            [
+                              _c(
+                                "font",
+                                {
+                                  staticStyle: { "vertical-align": "inherit" }
+                                },
+                                [_vm._v("News")]
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", [
+                      _c("p", [
+                        _c(
+                          "span",
+                          { staticClass: "m-mata-tag" },
+                          [
+                            _c(
+                              "font",
+                              { staticStyle: { "vertical-align": "inherit" } },
+                              [
+                                _c(
+                                  "font",
+                                  {
+                                    staticStyle: { "vertical-align": "inherit" }
+                                  },
+                                  [_vm._v("Share to")]
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("p", { staticClass: "share-film" }, [
+                        _c(
+                          "a",
+                          {
+                            attrs: {
+                              href:
+                                "https://www.facebook.com/sharer/sharer.php?u=https://www.talksns.com/movies/watch/7/",
+                              target: "_blank"
+                            }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              {
+                                staticClass: "feather feather-facebook",
+                                attrs: {
+                                  xmlns: "http://www.w3.org/2000/svg",
+                                  width: "24",
+                                  height: "24",
+                                  viewBox: "0 0 24 24",
+                                  fill: "#337ab7"
+                                }
+                              },
+                              [
+                                _c("path", {
+                                  attrs: {
+                                    d:
+                                      "M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M18,5H15.5A3.5,3.5 0 0,0 12,8.5V11H10V14H12V21H15V14H18V11H15V9A1,1 0 0,1 16,8H18V5Z"
+                                  }
+                                })
+                              ]
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            attrs: {
+                              href:
+                                "https://twitter.com/intent/tweet?text=https://www.talksns.com/movies/watch/7/",
+                              target: "_blank"
+                            }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              {
+                                staticClass: "feather feather-twitter",
+                                attrs: {
+                                  xmlns: "http://www.w3.org/2000/svg",
+                                  width: "24",
+                                  height: "24",
+                                  viewBox: "0 0 24 24",
+                                  fill: "#55acee"
+                                }
+                              },
+                              [
+                                _c("path", {
+                                  attrs: {
+                                    d:
+                                      "M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M17.71,9.33C18.19,8.93 18.75,8.45 19,7.92C18.59,8.13 18.1,8.26 17.56,8.33C18.06,7.97 18.47,7.5 18.68,6.86C18.16,7.14 17.63,7.38 16.97,7.5C15.42,5.63 11.71,7.15 12.37,9.95C9.76,9.79 8.17,8.61 6.85,7.16C6.1,8.38 6.75,10.23 7.64,10.74C7.18,10.71 6.83,10.57 6.5,10.41C6.54,11.95 7.39,12.69 8.58,13.09C8.22,13.16 7.82,13.18 7.44,13.12C7.81,14.19 8.58,14.86 9.9,15C9,15.76 7.34,16.29 6,16.08C7.15,16.81 8.46,17.39 10.28,17.31C14.69,17.11 17.64,13.95 17.71,9.33Z"
+                                  }
+                                })
+                              ]
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            attrs: {
+                              href:
+                                "https://plus.google.com/share?url=https://www.talksns.com/movies/watch/7/",
+                              target: "_blank"
+                            }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              {
+                                staticClass: "feather feather-google",
+                                attrs: {
+                                  xmlns: "http://www.w3.org/2000/svg",
+                                  width: "24",
+                                  height: "24",
+                                  viewBox: "0 0 24 24",
+                                  fill: "#d9534f"
+                                }
+                              },
+                              [
+                                _c("path", {
+                                  attrs: {
+                                    d:
+                                      "M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M19.5,12H18V10.5H17V12H15.5V13H17V14.5H18V13H19.5V12M9.65,11.36V12.9H12.22C12.09,13.54 11.45,14.83 9.65,14.83C8.11,14.83 6.89,13.54 6.89,12C6.89,10.46 8.11,9.17 9.65,9.17C10.55,9.17 11.13,9.56 11.45,9.88L12.67,8.72C11.9,7.95 10.87,7.5 9.65,7.5C7.14,7.5 5.15,9.5 5.15,12C5.15,14.5 7.14,16.5 9.65,16.5C12.22,16.5 13.96,14.7 13.96,12.13C13.96,11.81 13.96,11.61 13.89,11.36H9.65Z"
+                                  }
+                                })
+                              ]
+                            )
+                          ]
+                        )
+                      ])
+                    ])
+                  ])
+                ])
+              ]
+            ),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-md-7" }, [
+              _c(
+                "div",
+                {
+                  staticClass: "played-film-description-wrapper",
+                  staticStyle: { "padding-left": "8px", "padding-right": "8px" }
+                },
+                [
+                  _c("div", [
+                    _c(
+                      "h2",
+                      { staticClass: "movie-title" },
+                      [
+                        _c(
+                          "font",
+                          { staticStyle: { "vertical-align": "inherit" } },
+                          [
+                            _c(
+                              "font",
+                              { staticStyle: { "vertical-align": "inherit" } },
+                              [_vm._v(_vm._s(_vm.showdata.title))]
+                            )
+                          ],
+                          1
+                        )
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "ul",
+                      {
+                        staticClass: "breadcrumb watch-film-top-nav hidden-xs"
+                      },
+                      [
+                        _c("li", [
+                          _c(
+                            "a",
+                            { attrs: { href: "" } },
+                            [
+                              _c(
+                                "font",
+                                {
+                                  staticStyle: { "vertical-align": "inherit" }
+                                },
+                                [
+                                  _c(
+                                    "font",
+                                    {
+                                      staticStyle: {
+                                        "vertical-align": "inherit"
+                                      }
+                                    },
+                                    [_vm._v(" Home")]
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("li", [
+                          _c(
+                            "a",
+                            { attrs: { href: "" } },
+                            [
+                              _c(
+                                "font",
+                                {
+                                  staticStyle: { "vertical-align": "inherit" }
+                                },
+                                [
+                                  _c(
+                                    "font",
+                                    {
+                                      staticStyle: {
+                                        "vertical-align": "inherit"
+                                      }
+                                    },
+                                    [_vm._v("News")]
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "li",
+                          { staticClass: "last-bread" },
+                          [
+                            _c(
+                              "font",
+                              { staticStyle: { "vertical-align": "inherit" } },
+                              [
+                                _c(
+                                  "font",
+                                  {
+                                    staticStyle: { "vertical-align": "inherit" }
+                                  },
+                                  [_vm._v(_vm._s(_vm.showdata.title))]
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "film-player-wrapper" }, [
+                      _c("div", { staticClass: "watch_player_movie" }, [
+                        _c("iframe", {
+                          attrs: {
+                            src:
+                              "https://www.youtube.com/embed/" +
+                              _vm.showdata.news_resource,
+                            frameborder: "0",
+                            width: "100%",
+                            height: "391px"
+                          }
+                        })
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "played-film-description" }, [
+                      _c("div", { staticClass: "played-film-meta" }, [
+                        _c(
+                          "p",
+                          { staticClass: "about-film" },
+                          [
+                            _c(
+                              "font",
+                              { staticStyle: { "vertical-align": "inherit" } },
+                              [
+                                _c(
+                                  "font",
+                                  {
+                                    staticStyle: { "vertical-align": "inherit" }
+                                  },
+                                  [
+                                    _vm._v(
+                                      _vm._s(
+                                        _vm._f("striphtml")(
+                                          _vm.showdata.newsData
+                                        )
+                                      ) + " "
+                                    )
+                                  ]
+                                )
+                              ],
+                              1
+                            ),
+                            _c("br"),
+                            _vm._v(" "),
+                            _c("br"),
+                            _c(
+                              "font",
+                              { staticStyle: { "vertical-align": "inherit" } },
+                              [
+                                _c(
+                                  "font",
+                                  {
+                                    staticStyle: { "vertical-align": "inherit" }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "[Source: JoongAng Ilbo] Competition of the Korean party headquarters · Will the three-faced Na Kyung-won 3 be successful?"
+                                    )
+                                  ]
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "played-film-details" }, [
+                          _c("ul", { staticClass: "col-md-12" }, [
+                            _c("li", [
+                              _c("p", [
+                                _c(
+                                  "span",
+                                  { staticClass: "m-mata-tag" },
+                                  [
+                                    _c(
+                                      "font",
+                                      {
+                                        staticStyle: {
+                                          "vertical-align": "inherit"
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "font",
+                                          {
+                                            staticStyle: {
+                                              "vertical-align": "inherit"
+                                            }
+                                          },
+                                          [_vm._v("Stars: ")]
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "span",
+                                  { staticClass: "main" },
+                                  [
+                                    _c(
+                                      "font",
+                                      {
+                                        staticStyle: {
+                                          "vertical-align": "inherit"
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "font",
+                                          {
+                                            staticStyle: {
+                                              "vertical-align": "inherit"
+                                            }
+                                          },
+                                          [_vm._v("Cho Moon-gyu")]
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("li", [
+                              _c("p", [
+                                _c(
+                                  "span",
+                                  { staticClass: "m-mata-tag" },
+                                  [
+                                    _c(
+                                      "font",
+                                      {
+                                        staticStyle: {
+                                          "vertical-align": "inherit"
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "font",
+                                          {
+                                            staticStyle: {
+                                              "vertical-align": "inherit"
+                                            }
+                                          },
+                                          [_vm._v("Quality: ")]
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "span",
+                                  { staticClass: "badge" },
+                                  [
+                                    _c(
+                                      "font",
+                                      {
+                                        staticStyle: {
+                                          "vertical-align": "inherit"
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "font",
+                                          {
+                                            staticStyle: {
+                                              "vertical-align": "inherit"
+                                            }
+                                          },
+                                          [_vm._v("CAM")]
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("li", { staticClass: "mobi_movi_category" }, [
+                              _c("p", [
+                                _c(
+                                  "span",
+                                  { staticClass: "m-mata-tag" },
+                                  [
+                                    _c(
+                                      "font",
+                                      {
+                                        staticStyle: {
+                                          "vertical-align": "inherit"
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "font",
+                                          {
+                                            staticStyle: {
+                                              "vertical-align": "inherit"
+                                            }
+                                          },
+                                          [_vm._v("Genre: ")]
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "span",
+                                  { staticClass: "main" },
+                                  [
+                                    _c(
+                                      "font",
+                                      {
+                                        staticStyle: {
+                                          "vertical-align": "inherit"
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "font",
+                                          {
+                                            staticStyle: {
+                                              "vertical-align": "inherit"
+                                            }
+                                          },
+                                          [_vm._v("TVSHOW")]
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("li", [
+                              _c("p", [
+                                _c(
+                                  "span",
+                                  { staticClass: "m-mata-tag" },
+                                  [
+                                    _c(
+                                      "font",
+                                      {
+                                        staticStyle: {
+                                          "vertical-align": "inherit"
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "font",
+                                          {
+                                            staticStyle: {
+                                              "vertical-align": "inherit"
+                                            }
+                                          },
+                                          [_vm._v("Views: ")]
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "span",
+                                  { staticClass: "main" },
+                                  [
+                                    _c(
+                                      "font",
+                                      {
+                                        staticStyle: {
+                                          "vertical-align": "inherit"
+                                        }
+                                      },
+                                      [
+                                        _c(
+                                          "font",
+                                          {
+                                            staticStyle: {
+                                              "vertical-align": "inherit"
+                                            }
+                                          },
+                                          [_vm._v("8")]
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ])
+                            ])
+                          ])
+                        ])
+                      ])
+                    ])
+                  ])
+                ]
+              )
+            ]),
+            _vm._v(" "),
+            _c("rightside", { attrs: { showimgs: _vm.showimg } })
+          ],
+          1
+        )
+      ])
+    ]
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-1feb4989", module.exports)
+  }
+}
+
+/***/ }),
+/* 286 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(287)
+}
+var normalizeComponent = __webpack_require__(20)
+/* script */
+var __vue_script__ = __webpack_require__(289)
+/* template */
+var __vue_template__ = __webpack_require__(290)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -83021,17 +83923,17 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 282 */
+/* 287 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(283);
+var content = __webpack_require__(288);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(22)("a1aa00c6", content, false, {});
+var update = __webpack_require__(19)("a1aa00c6", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -83047,10 +83949,10 @@ if(false) {
 }
 
 /***/ }),
-/* 283 */
+/* 288 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(false);
+exports = module.exports = __webpack_require__(8)(false);
 // imports
 
 
@@ -83061,7 +83963,7 @@ exports.push([module.i, "\n.left-sidebar ul li a {\n    border-radius: 2px;\n   
 
 
 /***/ }),
-/* 284 */
+/* 289 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -83182,7 +84084,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 285 */
+/* 290 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -83972,19 +84874,19 @@ if (false) {
 }
 
 /***/ }),
-/* 286 */
+/* 291 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(287)
+  __webpack_require__(292)
 }
-var normalizeComponent = __webpack_require__(23)
+var normalizeComponent = __webpack_require__(20)
 /* script */
-var __vue_script__ = __webpack_require__(289)
+var __vue_script__ = __webpack_require__(294)
 /* template */
-var __vue_template__ = __webpack_require__(290)
+var __vue_template__ = __webpack_require__(295)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -84023,17 +84925,17 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 287 */
+/* 292 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(288);
+var content = __webpack_require__(293);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(22)("4890bf90", content, false, {});
+var update = __webpack_require__(19)("4890bf90", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -84049,10 +84951,10 @@ if(false) {
 }
 
 /***/ }),
-/* 288 */
+/* 293 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(false);
+exports = module.exports = __webpack_require__(8)(false);
 // imports
 
 
@@ -84063,7 +84965,7 @@ exports.push([module.i, "\n.left-sidebar ul li a svg {\r\n    margin-right: 10px
 
 
 /***/ }),
-/* 289 */
+/* 294 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -84108,7 +85010,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 290 */
+/* 295 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -84213,920 +85115,10 @@ if (false) {
 }
 
 /***/ }),
-/* 291 */
+/* 296 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 292 */,
-/* 293 */,
-/* 294 */,
-/* 295 */,
-/* 296 */,
-/* 297 */,
-/* 298 */,
-/* 299 */,
-/* 300 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-function injectStyle (ssrContext) {
-  if (disposed) return
-  __webpack_require__(303)
-}
-var normalizeComponent = __webpack_require__(23)
-/* script */
-var __vue_script__ = __webpack_require__(301)
-/* template */
-var __vue_template__ = __webpack_require__(302)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = injectStyle
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/Pernews.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-1feb4989", Component.options)
-  } else {
-    hotAPI.reload("data-v-1feb4989", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 301 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-    name: 'pernews',
-    props: ['news_id', 'showimg'],
-    data: function data() {
-        return {
-            showdata: ''
-        };
-    },
-
-    methods: {
-        getperdata: function getperdata() {
-            var _this = this;
-
-            axios.get('http://203.99.61.173/demos/peeksns/public/account/news/' + this.news_id).then(function (responce) {
-                _this.showdata = responce.data[0];
-            }).catch(function (error) {
-                return console.log(error);
-            });
-        }
-    },
-    mounted: function mounted() {
-        console.log(this.news_id);
-        this.getperdata();
-    }
-});
-
-/***/ }),
-/* 302 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "section",
-    { staticStyle: { "margin-top": "100px" }, attrs: { id: "relate-to-job" } },
-    [
-      _c("div", { staticClass: "container" }, [
-        _c(
-          "div",
-          { staticClass: "row" },
-          [
-            _c(
-              "div",
-              {
-                staticClass: "col-md-2 leftcol watch_info_movie",
-                staticStyle: {
-                  position: "relative",
-                  overflow: "visible",
-                  "box-sizing": "border-box",
-                  "min-height": "424.828px"
-                }
-              },
-              [
-                _c("div", { staticClass: "theiaStickySidebar" }, [
-                  _c("div", { staticClass: "played-film-image-wrap" }, [
-                    _c("img", {
-                      attrs: {
-                        alt: "National Assembly information report ",
-                        title: "National Assembly information report ",
-                        src:
-                          "http://203.99.61.173/demos/peeksns/public/featured-photos/" +
-                          _vm.showdata.featuredImage
-                      }
-                    }),
-                    _vm._v(" "),
-                    _c(
-                      "h4",
-                      { staticClass: "main" },
-                      [
-                        _c(
-                          "font",
-                          { staticStyle: { "vertical-align": "inherit" } },
-                          [
-                            _c(
-                              "font",
-                              { staticStyle: { "vertical-align": "inherit" } },
-                              [_vm._v(_vm._s(_vm.showdata.title))]
-                            )
-                          ],
-                          1
-                        )
-                      ],
-                      1
-                    ),
-                    _vm._v(" "),
-                    _c("div", [
-                      _c("p", { staticClass: "m-mata-tag" }, [
-                        _c(
-                          "span",
-                          [
-                            _c(
-                              "font",
-                              { staticStyle: { "vertical-align": "inherit" } },
-                              [
-                                _c(
-                                  "font",
-                                  {
-                                    staticStyle: { "vertical-align": "inherit" }
-                                  },
-                                  [_vm._v("Genre")]
-                                )
-                              ],
-                              1
-                            )
-                          ],
-                          1
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _c(
-                        "p",
-                        [
-                          _c(
-                            "font",
-                            { staticStyle: { "vertical-align": "inherit" } },
-                            [
-                              _c(
-                                "font",
-                                {
-                                  staticStyle: { "vertical-align": "inherit" }
-                                },
-                                [_vm._v("News")]
-                              )
-                            ],
-                            1
-                          )
-                        ],
-                        1
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", [
-                      _c("p", [
-                        _c(
-                          "span",
-                          { staticClass: "m-mata-tag" },
-                          [
-                            _c(
-                              "font",
-                              { staticStyle: { "vertical-align": "inherit" } },
-                              [
-                                _c(
-                                  "font",
-                                  {
-                                    staticStyle: { "vertical-align": "inherit" }
-                                  },
-                                  [_vm._v("Share to")]
-                                )
-                              ],
-                              1
-                            )
-                          ],
-                          1
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _c("p", { staticClass: "share-film" }, [
-                        _c(
-                          "a",
-                          {
-                            attrs: {
-                              href:
-                                "https://www.facebook.com/sharer/sharer.php?u=https://www.talksns.com/movies/watch/7/",
-                              target: "_blank"
-                            }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              {
-                                staticClass: "feather feather-facebook",
-                                attrs: {
-                                  xmlns: "http://www.w3.org/2000/svg",
-                                  width: "24",
-                                  height: "24",
-                                  viewBox: "0 0 24 24",
-                                  fill: "#337ab7"
-                                }
-                              },
-                              [
-                                _c("path", {
-                                  attrs: {
-                                    d:
-                                      "M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M18,5H15.5A3.5,3.5 0 0,0 12,8.5V11H10V14H12V21H15V14H18V11H15V9A1,1 0 0,1 16,8H18V5Z"
-                                  }
-                                })
-                              ]
-                            )
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            attrs: {
-                              href:
-                                "https://twitter.com/intent/tweet?text=https://www.talksns.com/movies/watch/7/",
-                              target: "_blank"
-                            }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              {
-                                staticClass: "feather feather-twitter",
-                                attrs: {
-                                  xmlns: "http://www.w3.org/2000/svg",
-                                  width: "24",
-                                  height: "24",
-                                  viewBox: "0 0 24 24",
-                                  fill: "#55acee"
-                                }
-                              },
-                              [
-                                _c("path", {
-                                  attrs: {
-                                    d:
-                                      "M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M17.71,9.33C18.19,8.93 18.75,8.45 19,7.92C18.59,8.13 18.1,8.26 17.56,8.33C18.06,7.97 18.47,7.5 18.68,6.86C18.16,7.14 17.63,7.38 16.97,7.5C15.42,5.63 11.71,7.15 12.37,9.95C9.76,9.79 8.17,8.61 6.85,7.16C6.1,8.38 6.75,10.23 7.64,10.74C7.18,10.71 6.83,10.57 6.5,10.41C6.54,11.95 7.39,12.69 8.58,13.09C8.22,13.16 7.82,13.18 7.44,13.12C7.81,14.19 8.58,14.86 9.9,15C9,15.76 7.34,16.29 6,16.08C7.15,16.81 8.46,17.39 10.28,17.31C14.69,17.11 17.64,13.95 17.71,9.33Z"
-                                  }
-                                })
-                              ]
-                            )
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            attrs: {
-                              href:
-                                "https://plus.google.com/share?url=https://www.talksns.com/movies/watch/7/",
-                              target: "_blank"
-                            }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              {
-                                staticClass: "feather feather-google",
-                                attrs: {
-                                  xmlns: "http://www.w3.org/2000/svg",
-                                  width: "24",
-                                  height: "24",
-                                  viewBox: "0 0 24 24",
-                                  fill: "#d9534f"
-                                }
-                              },
-                              [
-                                _c("path", {
-                                  attrs: {
-                                    d:
-                                      "M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M19.5,12H18V10.5H17V12H15.5V13H17V14.5H18V13H19.5V12M9.65,11.36V12.9H12.22C12.09,13.54 11.45,14.83 9.65,14.83C8.11,14.83 6.89,13.54 6.89,12C6.89,10.46 8.11,9.17 9.65,9.17C10.55,9.17 11.13,9.56 11.45,9.88L12.67,8.72C11.9,7.95 10.87,7.5 9.65,7.5C7.14,7.5 5.15,9.5 5.15,12C5.15,14.5 7.14,16.5 9.65,16.5C12.22,16.5 13.96,14.7 13.96,12.13C13.96,11.81 13.96,11.61 13.89,11.36H9.65Z"
-                                  }
-                                })
-                              ]
-                            )
-                          ]
-                        )
-                      ])
-                    ])
-                  ])
-                ])
-              ]
-            ),
-            _vm._v(" "),
-            _c("div", { staticClass: "col-md-7" }, [
-              _c(
-                "div",
-                {
-                  staticClass: "played-film-description-wrapper",
-                  staticStyle: { "padding-left": "8px", "padding-right": "8px" }
-                },
-                [
-                  _c("div", [
-                    _c(
-                      "h2",
-                      { staticClass: "movie-title" },
-                      [
-                        _c(
-                          "font",
-                          { staticStyle: { "vertical-align": "inherit" } },
-                          [
-                            _c(
-                              "font",
-                              { staticStyle: { "vertical-align": "inherit" } },
-                              [_vm._v(_vm._s(_vm.showdata.title))]
-                            )
-                          ],
-                          1
-                        )
-                      ],
-                      1
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "ul",
-                      {
-                        staticClass: "breadcrumb watch-film-top-nav hidden-xs"
-                      },
-                      [
-                        _c("li", [
-                          _c(
-                            "a",
-                            { attrs: { href: "" } },
-                            [
-                              _c(
-                                "font",
-                                {
-                                  staticStyle: { "vertical-align": "inherit" }
-                                },
-                                [
-                                  _c(
-                                    "font",
-                                    {
-                                      staticStyle: {
-                                        "vertical-align": "inherit"
-                                      }
-                                    },
-                                    [_vm._v(" Home")]
-                                  )
-                                ],
-                                1
-                              )
-                            ],
-                            1
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("li", [
-                          _c(
-                            "a",
-                            { attrs: { href: "" } },
-                            [
-                              _c(
-                                "font",
-                                {
-                                  staticStyle: { "vertical-align": "inherit" }
-                                },
-                                [
-                                  _c(
-                                    "font",
-                                    {
-                                      staticStyle: {
-                                        "vertical-align": "inherit"
-                                      }
-                                    },
-                                    [_vm._v("News")]
-                                  )
-                                ],
-                                1
-                              )
-                            ],
-                            1
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c(
-                          "li",
-                          { staticClass: "last-bread" },
-                          [
-                            _c(
-                              "font",
-                              { staticStyle: { "vertical-align": "inherit" } },
-                              [
-                                _c(
-                                  "font",
-                                  {
-                                    staticStyle: { "vertical-align": "inherit" }
-                                  },
-                                  [_vm._v(_vm._s(_vm.showdata.title))]
-                                )
-                              ],
-                              1
-                            )
-                          ],
-                          1
-                        )
-                      ]
-                    ),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "film-player-wrapper" }, [
-                      _c("div", { staticClass: "watch_player_movie" }, [
-                        _c("iframe", {
-                          attrs: {
-                            src:
-                              "https://www.youtube.com/embed/" +
-                              _vm.showdata.news_resource,
-                            frameborder: "0",
-                            width: "100%",
-                            height: "391px"
-                          }
-                        })
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "played-film-description" }, [
-                      _c("div", { staticClass: "played-film-meta" }, [
-                        _c(
-                          "p",
-                          { staticClass: "about-film" },
-                          [
-                            _c(
-                              "font",
-                              { staticStyle: { "vertical-align": "inherit" } },
-                              [
-                                _c(
-                                  "font",
-                                  {
-                                    staticStyle: { "vertical-align": "inherit" }
-                                  },
-                                  [
-                                    _vm._v(
-                                      _vm._s(
-                                        _vm._f("striphtml")(
-                                          _vm.showdata.newsData
-                                        )
-                                      ) + " "
-                                    )
-                                  ]
-                                )
-                              ],
-                              1
-                            ),
-                            _c("br"),
-                            _vm._v(" "),
-                            _c("br"),
-                            _c(
-                              "font",
-                              { staticStyle: { "vertical-align": "inherit" } },
-                              [
-                                _c(
-                                  "font",
-                                  {
-                                    staticStyle: { "vertical-align": "inherit" }
-                                  },
-                                  [
-                                    _vm._v(
-                                      "[Source: JoongAng Ilbo] Competition of the Korean party headquarters · Will the three-faced Na Kyung-won 3 be successful?"
-                                    )
-                                  ]
-                                )
-                              ],
-                              1
-                            )
-                          ],
-                          1
-                        ),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "played-film-details" }, [
-                          _c("ul", { staticClass: "col-md-12" }, [
-                            _c("li", [
-                              _c("p", [
-                                _c(
-                                  "span",
-                                  { staticClass: "m-mata-tag" },
-                                  [
-                                    _c(
-                                      "font",
-                                      {
-                                        staticStyle: {
-                                          "vertical-align": "inherit"
-                                        }
-                                      },
-                                      [
-                                        _c(
-                                          "font",
-                                          {
-                                            staticStyle: {
-                                              "vertical-align": "inherit"
-                                            }
-                                          },
-                                          [_vm._v("Stars: ")]
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "span",
-                                  { staticClass: "main" },
-                                  [
-                                    _c(
-                                      "font",
-                                      {
-                                        staticStyle: {
-                                          "vertical-align": "inherit"
-                                        }
-                                      },
-                                      [
-                                        _c(
-                                          "font",
-                                          {
-                                            staticStyle: {
-                                              "vertical-align": "inherit"
-                                            }
-                                          },
-                                          [_vm._v("Cho Moon-gyu")]
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                )
-                              ])
-                            ]),
-                            _vm._v(" "),
-                            _c("li", [
-                              _c("p", [
-                                _c(
-                                  "span",
-                                  { staticClass: "m-mata-tag" },
-                                  [
-                                    _c(
-                                      "font",
-                                      {
-                                        staticStyle: {
-                                          "vertical-align": "inherit"
-                                        }
-                                      },
-                                      [
-                                        _c(
-                                          "font",
-                                          {
-                                            staticStyle: {
-                                              "vertical-align": "inherit"
-                                            }
-                                          },
-                                          [_vm._v("Quality: ")]
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "span",
-                                  { staticClass: "badge" },
-                                  [
-                                    _c(
-                                      "font",
-                                      {
-                                        staticStyle: {
-                                          "vertical-align": "inherit"
-                                        }
-                                      },
-                                      [
-                                        _c(
-                                          "font",
-                                          {
-                                            staticStyle: {
-                                              "vertical-align": "inherit"
-                                            }
-                                          },
-                                          [_vm._v("CAM")]
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                )
-                              ])
-                            ]),
-                            _vm._v(" "),
-                            _c("li", { staticClass: "mobi_movi_category" }, [
-                              _c("p", [
-                                _c(
-                                  "span",
-                                  { staticClass: "m-mata-tag" },
-                                  [
-                                    _c(
-                                      "font",
-                                      {
-                                        staticStyle: {
-                                          "vertical-align": "inherit"
-                                        }
-                                      },
-                                      [
-                                        _c(
-                                          "font",
-                                          {
-                                            staticStyle: {
-                                              "vertical-align": "inherit"
-                                            }
-                                          },
-                                          [_vm._v("Genre: ")]
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "span",
-                                  { staticClass: "main" },
-                                  [
-                                    _c(
-                                      "font",
-                                      {
-                                        staticStyle: {
-                                          "vertical-align": "inherit"
-                                        }
-                                      },
-                                      [
-                                        _c(
-                                          "font",
-                                          {
-                                            staticStyle: {
-                                              "vertical-align": "inherit"
-                                            }
-                                          },
-                                          [_vm._v("TVSHOW")]
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                )
-                              ])
-                            ]),
-                            _vm._v(" "),
-                            _c("li", [
-                              _c("p", [
-                                _c(
-                                  "span",
-                                  { staticClass: "m-mata-tag" },
-                                  [
-                                    _c(
-                                      "font",
-                                      {
-                                        staticStyle: {
-                                          "vertical-align": "inherit"
-                                        }
-                                      },
-                                      [
-                                        _c(
-                                          "font",
-                                          {
-                                            staticStyle: {
-                                              "vertical-align": "inherit"
-                                            }
-                                          },
-                                          [_vm._v("Views: ")]
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "span",
-                                  { staticClass: "main" },
-                                  [
-                                    _c(
-                                      "font",
-                                      {
-                                        staticStyle: {
-                                          "vertical-align": "inherit"
-                                        }
-                                      },
-                                      [
-                                        _c(
-                                          "font",
-                                          {
-                                            staticStyle: {
-                                              "vertical-align": "inherit"
-                                            }
-                                          },
-                                          [_vm._v("8")]
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                )
-                              ])
-                            ])
-                          ])
-                        ])
-                      ])
-                    ])
-                  ])
-                ]
-              )
-            ]),
-            _vm._v(" "),
-            _c("rightside", { attrs: { showimgs: _vm.showimg } })
-          ],
-          1
-        )
-      ])
-    ]
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-1feb4989", module.exports)
-  }
-}
-
-/***/ }),
-/* 303 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(304);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(22)("235929af", content, false, {});
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-1feb4989\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Pernews.vue", function() {
-     var newContent = require("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-1feb4989\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Pernews.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 304 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(11)(false);
-// imports
-
-
-// module
-exports.push([module.i, "\n.played-film-description-wrapper {\n    background-color: #fff;\n    overflow: hidden;\n    -webkit-box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n            box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n}\n.related-movies-container {\n    background-color: #fff;\n    overflow: hidden;\n    -webkit-box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n            box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n    margin-top: 1px;\n}\n.played-film-image-wrap {\n    display: block;\n    overflow: hidden;\n    position: relative;\n    background-color: white;\n    border-radius: 3px;\n    -webkit-box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n            box-shadow: 0 1px 0 0 #e3e4e8, 0 0 0 1px #f1f1f1;\n    padding: 8px;\n}\n.responsive-img {\n    width: 100%;\n    max-width: 100%;\n}\n.main {\n    color: #5a9e02 !important;\n}\n", ""]);
-
-// exports
-
 
 /***/ })
 /******/ ]);
