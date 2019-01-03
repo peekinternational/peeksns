@@ -84119,7 +84119,11 @@ var render = function() {
     _c("div", { staticClass: "cards cards-user" }, [
       _c("div", { staticClass: "image" }, [
         _c("img", {
-          attrs: { src: "/profile-photos/logo/background.jpg", alt: "..." }
+          attrs: {
+            src:
+              "http://203.99.61.173/demos/peeksns/public/profile-photos/logo/background.jpg",
+            alt: "..."
+          }
         })
       ]),
       _vm._v(" "),
@@ -84140,7 +84144,9 @@ var render = function() {
                     staticClass: "avatar border-white",
                     staticStyle: { "margin-left": "98px" },
                     attrs: {
-                      src: "/profile-photos/" + _vm.showimgs,
+                      src:
+                        "http://203.99.61.173/demos/peeksns/public/profile-photos/" +
+                        _vm.showimgs,
                       alt: "..."
                     }
                   })
@@ -84151,7 +84157,8 @@ var render = function() {
                   staticClass: "avatar border-white",
                   staticStyle: { "margin-left": "98px" },
                   attrs: {
-                    src: "/profile-photos/logo/new_logo.png",
+                    src:
+                      "http://203.99.61.173/demos/peeksns/public/profile-photos/logo/new_logo.png",
                     alt: "..."
                   }
                 })

@@ -2,16 +2,16 @@
     <div class="col-md-3">
 	       <div class="cards cards-user">
 						<div class="image">
-							<img :src="'/profile-photos/logo/background.jpg'" alt="...">
+							<img :src="'http://203.99.61.173/demos/peeksns/public/profile-photos/logo/background.jpg'" alt="...">
 						</div>
 						<div class="content">
 							<div class="author">
 							<div class="re-img-box" v-if="showimgs" style="border-radius: 0px !important;height:100px">
-									<img class="avatar border-white" :src="'/profile-photos/'+showimgs" alt="..." style="margin-left: 98px;">
+									<img class="avatar border-white" :src="'http://203.99.61.173/demos/peeksns/public/profile-photos/'+showimgs" alt="..." style="margin-left: 98px;">
 									
 									</div>
                   <div class="re-img-box" v-else>
-									<img class="avatar border-white" :src="'/profile-photos/logo/new_logo.png'" alt="..." style="margin-left: 98px;">
+									<img class="avatar border-white" :src="'http://203.99.61.173/demos/peeksns/public/profile-photos/logo/new_logo.png'" alt="..." style="margin-left: 98px;">
 									
 									</div>
 								<h4 class="title" id="userName">Nabeel<br>
